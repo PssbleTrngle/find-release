@@ -22179,7 +22179,7 @@ async function findRelease(octokit, repo, filter = {}) {
 }
 
 // src/main.ts
-var token = getInput("token");
+var token = getInput("token", { required: true });
 var octokit = getOctokit(token);
 var { repo } = context2;
 var filter = {
