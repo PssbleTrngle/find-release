@@ -22189,3 +22189,4 @@ var filter = {
 var match = await findRelease(octokit, repo, filter);
 setOutput("matched", !!match);
 setOutput("match", match);
+setOutput("tag", match?.tag_name);

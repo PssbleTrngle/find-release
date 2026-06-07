@@ -17,3 +17,4 @@ const match = await findRelease(octokit, repo, filter);
 
 core.setOutput("matched", !!match);
 core.setOutput("match", match);
+core.setOutput("tag", match?.tag_name);

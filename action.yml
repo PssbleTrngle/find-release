@@ -14,6 +14,8 @@ inputs:
     description: the git branch
 
 outputs:
+  tag:
+    description: the tag of matched release
   match:
     description: the matched release
   matched:

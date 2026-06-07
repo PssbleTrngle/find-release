@@ -44,5 +44,4 @@ jobs:
               token: ${{ secrets.GITHUB_TOKEN }}
 
          - run: echo ${{ steps.action.outputs.matched }}
-         - run: jq ${{ steps.action.outputs.match }} | echo
-         - run: echo ${{ steps.action.outputs.match.name }}
+         - run: echo ${{ steps.action.outputs.tag }}
