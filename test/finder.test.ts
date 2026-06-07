@@ -1,5 +1,5 @@
 import { getOctokit } from "@actions/github";
-import { it } from "bun:test";
+import { expect, it } from "bun:test";
 import findRelease from "../src/finder";
 
 it("finds latest draft", async () => {
@@ -11,7 +11,7 @@ it("finds latest draft", async () => {
     { type: "draft" },
   );
 
-  console.log(actual);
+  expect(actual).not.toBeNull();
 });
 
 it("finds latest for branch", async () => {
@@ -23,5 +23,5 @@ it("finds latest for branch", async () => {
     { branch: "main/common/1.21.x" },
   );
 
-  console.log(actual);
+  expect(actual).not.toBeNull();
 });

@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
+import findRelease from "./finder";
 
 // This should be a token with access to your repository scoped in as a secret.
 // The YML workflow will need to set myToken with the GitHub Secret Token
@@ -14,9 +15,4 @@ const { repo } = github.context;
 // You can also pass in additional options as a second parameter to getOctokit
 // const octokit = github.getOctokit(myToken, {userAgent: "MyActionVersion1"});
 
-for await (const { data } of octokit.paginate.iterator(
-  octokit.rest.repos.listReleases,
-  repo,
-)) {
-  console.log(data);
-}
+await findRelease(octokit, repo);

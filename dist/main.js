@@ -22055,10 +22055,30 @@ function getOctokit(token, options, ...additionalPlugins) {
   return new GitHubWithPlugins(getOctokitOptions(token, options));
 }
 
+// src/finder.ts
+function buildPredicate(filter) {
+  return (it) => {
+    if (filter.branch && it.target_commitish !== filter.branch)
+      return false;
+    if (filter.type === "released" && it.draft)
+      return false;
+    if (filter.type === "draft" && !it.draft)
+      return false;
+    return true;
+  };
+}
+async function findRelease(octokit, repo, filter = {}) {
+  const predicate = buildPredicate(filter);
+  for await (const { data } of octokit.paginate.iterator(octokit.rest.repos.listReleases, repo)) {
+    const match = data.find(predicate);
+    if (match)
+      return match;
+  }
+  return null;
+}
+
 // src/main.ts
 var myToken = getInput("myToken");
 var octokit = getOctokit(myToken);
 var { repo } = context2;
-for await (const { data } of octokit.paginate.iterator(octokit.rest.repos.listReleases, repo)) {
-  console.log(data);
-}
+await findRelease(octokit, repo);

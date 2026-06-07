@@ -25,7 +25,6 @@ export default async function findRelease(
     octokit.rest.repos.listReleases,
     repo,
   )) {
-    console.log(data.map((it) => it.draft));
     const match = data.find(predicate);
     if (match) return match;
   }
