@@ -36,6 +36,8 @@ jobs:
       steps:
          - uses: actions/checkout@v6
 
+         - run: echo ${{ github.token }}
+
          - name: run action
            uses: ./
            with:
