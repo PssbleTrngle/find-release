@@ -11,7 +11,7 @@ type Predicate = (release: Release) => boolean;
 function buildPredicate(filter: Filter): Predicate {
   const predicates: Predicate[] = [];
   if (filter.branch)
-    predicates.push((it) => it.target_commitish !== filter.branch);
+    predicates.push((it) => it.target_commitish === filter.branch);
 
   if (filter.type) {
     if (filter.type === "released") predicates.push((it) => !it.draft);

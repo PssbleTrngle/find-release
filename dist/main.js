@@ -22157,7 +22157,7 @@ function getOctokit(token, options, ...additionalPlugins) {
 function buildPredicate(filter) {
   const predicates = [];
   if (filter.branch)
-    predicates.push((it) => it.target_commitish !== filter.branch);
+    predicates.push((it) => it.target_commitish === filter.branch);
   if (filter.type) {
     if (filter.type === "released")
       predicates.push((it) => !it.draft);
