@@ -37,7 +37,12 @@ jobs:
          - uses: actions/checkout@v6
 
          - name: run action
+           id: action
            uses: ./
            with:
               type: draft
               token: ${{ secrets.GITHUB_TOKEN }}
+
+         - run: echo ${{ steps.action.outputs.matched }}
+         - run: jq ${{ steps.action.outputs.match }} | echo
+         - run: echo ${{ steps.action.outputs.match.name }}
