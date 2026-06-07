@@ -15,7 +15,7 @@ permissions:
    contents: write
 
 jobs:
-   test:
+   unit:
       runs-on: ubuntu-latest
       steps:
          - uses: actions/checkout@v6
@@ -30,3 +30,15 @@ jobs:
            run: bun test
            env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+   integration:
+      permissions:
+         contents: write
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v6
+
+         - name: run action
+           uses: ./
+           with:
+              type: draft

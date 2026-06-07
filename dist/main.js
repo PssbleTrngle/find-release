@@ -3670,11 +3670,11 @@ var require_util2 = __commonJS((exports, module) => {
   var { isUint8Array } = __require("node:util/types");
   var { webidl } = require_webidl();
   var supportedHashes = [];
-  var crypto;
+  var crypto2;
   try {
-    crypto = __require("node:crypto");
+    crypto2 = __require("node:crypto");
     const possibleRelevantHashes = ["sha256", "sha384", "sha512"];
-    supportedHashes = crypto.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
+    supportedHashes = crypto2.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
   } catch {}
   function responseURL(response) {
     const urlList = response.urlList;
@@ -3933,7 +3933,7 @@ var require_util2 = __commonJS((exports, module) => {
     }
   }
   function bytesMatch(bytes, metadataList) {
-    if (crypto === undefined) {
+    if (crypto2 === undefined) {
       return true;
     }
     const parsedMetadata = parseMetadata(metadataList);
@@ -3948,7 +3948,7 @@ var require_util2 = __commonJS((exports, module) => {
     for (const item of metadata) {
       const algorithm = item.algo;
       const expectedValue = item.hash;
-      let actualValue = crypto.createHash(algorithm).update(bytes).digest("base64");
+      let actualValue = crypto2.createHash(algorithm).update(bytes).digest("base64");
       if (actualValue[actualValue.length - 1] === "=") {
         if (actualValue[actualValue.length - 2] === "=") {
           actualValue = actualValue.slice(0, -2);
@@ -4933,8 +4933,8 @@ var require_body = __commonJS((exports, module) => {
   var { multipartFormDataParser } = require_formdata_parser();
   var random;
   try {
-    const crypto = __require("node:crypto");
-    random = (max) => crypto.randomInt(0, max);
+    const crypto2 = __require("node:crypto");
+    random = (max) => crypto2.randomInt(0, max);
   } catch {
     random = (max) => Math.floor(Math.random(max));
   }
@@ -15631,13 +15631,13 @@ var require_util7 = __commonJS((exports, module) => {
 var require_frame = __commonJS((exports, module) => {
   var { maxUnsigned16Bit } = require_constants5();
   var BUFFER_SIZE = 16386;
-  var crypto;
+  var crypto2;
   var buffer = null;
   var bufIdx = BUFFER_SIZE;
   try {
-    crypto = __require("node:crypto");
+    crypto2 = __require("node:crypto");
   } catch {
-    crypto = {
+    crypto2 = {
       randomFillSync: function randomFillSync(buffer2, _offset, _size) {
         for (let i = 0;i < buffer2.length; ++i) {
           buffer2[i] = Math.random() * 255 | 0;
@@ -15649,7 +15649,7 @@ var require_frame = __commonJS((exports, module) => {
   function generateMask() {
     if (bufIdx === BUFFER_SIZE) {
       bufIdx = 0;
-      crypto.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
+      crypto2.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
     }
     return [buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++]];
   }
@@ -15717,9 +15717,9 @@ var require_connection = __commonJS((exports, module) => {
   var { Headers, getHeadersList } = require_headers();
   var { getDecodeSplit } = require_util2();
   var { WebsocketFrameSend } = require_frame();
-  var crypto;
+  var crypto2;
   try {
-    crypto = __require("node:crypto");
+    crypto2 = __require("node:crypto");
   } catch {}
   function establishWebSocketConnection(url, protocols, client, ws, onEstablish, options) {
     const requestURL = url;
@@ -15738,7 +15738,7 @@ var require_connection = __commonJS((exports, module) => {
       const headersList = getHeadersList(new Headers(options.headers));
       request.headersList = headersList;
     }
-    const keyValue = crypto.randomBytes(16).toString("base64");
+    const keyValue = crypto2.randomBytes(16).toString("base64");
     request.headersList.append("sec-websocket-key", keyValue);
     request.headersList.append("sec-websocket-version", "13");
     for (const protocol of protocols) {
@@ -15768,7 +15768,7 @@ var require_connection = __commonJS((exports, module) => {
           return;
         }
         const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-        const digest = crypto.createHash("sha1").update(keyValue + uid).digest("base64");
+        const digest = crypto2.createHash("sha1").update(keyValue + uid).digest("base64");
         if (secWSAccept !== digest) {
           failWebsocketConnection(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
           return;
@@ -18179,6 +18179,96 @@ var require_dist = __commonJS((exports) => {
   }
 });
 
+// node_modules/@actions/core/lib/command.js
+import * as os from "os";
+
+// node_modules/@actions/core/lib/utils.js
+function toCommandValue(input) {
+  if (input === null || input === undefined) {
+    return "";
+  } else if (typeof input === "string" || input instanceof String) {
+    return input;
+  }
+  return JSON.stringify(input);
+}
+
+// node_modules/@actions/core/lib/command.js
+function issueCommand(command, properties, message) {
+  const cmd = new Command(command, properties, message);
+  process.stdout.write(cmd.toString() + os.EOL);
+}
+var CMD_STRING = "::";
+
+class Command {
+  constructor(command, properties, message) {
+    if (!command) {
+      command = "missing.command";
+    }
+    this.command = command;
+    this.properties = properties;
+    this.message = message;
+  }
+  toString() {
+    let cmdStr = CMD_STRING + this.command;
+    if (this.properties && Object.keys(this.properties).length > 0) {
+      cmdStr += " ";
+      let first = true;
+      for (const key in this.properties) {
+        if (this.properties.hasOwnProperty(key)) {
+          const val = this.properties[key];
+          if (val) {
+            if (first) {
+              first = false;
+            } else {
+              cmdStr += ",";
+            }
+            cmdStr += `${key}=${escapeProperty(val)}`;
+          }
+        }
+      }
+    }
+    cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
+    return cmdStr;
+  }
+}
+function escapeData(s) {
+  return toCommandValue(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+}
+function escapeProperty(s) {
+  return toCommandValue(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A").replace(/:/g, "%3A").replace(/,/g, "%2C");
+}
+
+// node_modules/@actions/core/lib/file-command.js
+import * as crypto from "crypto";
+import * as fs from "fs";
+import * as os2 from "os";
+function issueFileCommand(command, message) {
+  const filePath = process.env[`GITHUB_${command}`];
+  if (!filePath) {
+    throw new Error(`Unable to find environment variable for file command ${command}`);
+  }
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Missing file at path: ${filePath}`);
+  }
+  fs.appendFileSync(filePath, `${toCommandValue(message)}${os2.EOL}`, {
+    encoding: "utf8"
+  });
+}
+function prepareKeyValueMessage(key, value) {
+  const delimiter = `ghadelimiter_${crypto.randomUUID()}`;
+  const convertedValue = toCommandValue(value);
+  if (key.includes(delimiter)) {
+    throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+  }
+  if (convertedValue.includes(delimiter)) {
+    throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+  }
+  return `${key}<<${delimiter}${os2.EOL}${convertedValue}${os2.EOL}${delimiter}`;
+}
+
+// node_modules/@actions/core/lib/core.js
+import * as os4 from "os";
+
 // node_modules/@actions/http-client/lib/index.js
 var tunnel = __toESM(require_tunnel(), 1);
 var import_undici = __toESM(require_undici(), 1);
@@ -18235,7 +18325,7 @@ var HttpResponseRetryCodes = [
 ];
 
 // node_modules/@actions/core/lib/summary.js
-import { EOL } from "os";
+import { EOL as EOL3 } from "os";
 import { constants, promises } from "fs";
 var __awaiter = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
@@ -18324,7 +18414,7 @@ class Summary {
     return addEOL ? this.addEOL() : this;
   }
   addEOL() {
-    return this.addRaw(EOL);
+    return this.addRaw(EOL3);
   }
   addCodeBlock(code, lang) {
     const attrs = Object.assign({}, lang && { lang });
@@ -18389,19 +18479,19 @@ class Summary {
 }
 var _summary = new Summary;
 // node_modules/@actions/core/lib/platform.js
-import os from "os";
+import os3 from "os";
 
 // node_modules/@actions/io/lib/io-util.js
-import * as fs from "fs";
+import * as fs2 from "fs";
 var IS_WINDOWS = process.platform === "win32";
-var READONLY = fs.constants.O_RDONLY;
+var READONLY = fs2.constants.O_RDONLY;
 
 // node_modules/@actions/exec/lib/toolrunner.js
 var IS_WINDOWS2 = process.platform === "win32";
 
 // node_modules/@actions/core/lib/platform.js
-var platform = os.platform();
-var arch = os.arch();
+var platform = os3.platform();
+var arch = os3.arch();
 // node_modules/@actions/core/lib/core.js
 var ExitCode;
 (function(ExitCode2) {
@@ -18418,21 +18508,29 @@ function getInput(name, options) {
   }
   return val.trim();
 }
+function setOutput(name, value) {
+  const filePath = process.env["GITHUB_OUTPUT"] || "";
+  if (filePath) {
+    return issueFileCommand("OUTPUT", prepareKeyValueMessage(name, value));
+  }
+  process.stdout.write(os4.EOL);
+  issueCommand("set-output", { name }, toCommandValue(value));
+}
 
 // node_modules/@actions/github/lib/context.js
-import { readFileSync, existsSync } from "fs";
-import { EOL as EOL2 } from "os";
+import { readFileSync, existsSync as existsSync2 } from "fs";
+import { EOL as EOL5 } from "os";
 
 class Context {
   constructor() {
     var _a, _b, _c;
     this.payload = {};
     if (process.env.GITHUB_EVENT_PATH) {
-      if (existsSync(process.env.GITHUB_EVENT_PATH)) {
+      if (existsSync2(process.env.GITHUB_EVENT_PATH)) {
         this.payload = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: "utf8" }));
       } else {
         const path = process.env.GITHUB_EVENT_PATH;
-        process.stdout.write(`GITHUB_EVENT_PATH ${path} does not exist${EOL2}`);
+        process.stdout.write(`GITHUB_EVENT_PATH ${path} does not exist${EOL5}`);
       }
     }
     this.eventName = process.env.GITHUB_EVENT_NAME;
@@ -22057,15 +22155,18 @@ function getOctokit(token, options, ...additionalPlugins) {
 
 // src/finder.ts
 function buildPredicate(filter) {
-  return (it) => {
-    if (filter.branch && it.target_commitish !== filter.branch)
-      return false;
-    if (filter.type === "released" && it.draft)
-      return false;
-    if (filter.type === "draft" && !it.draft)
-      return false;
-    return true;
-  };
+  const predicates = [];
+  if (filter.branch)
+    predicates.push((it) => it.target_commitish !== filter.branch);
+  if (filter.type) {
+    if (filter.type === "released")
+      predicates.push((it) => !it.draft);
+    else if (filter.type === "draft")
+      predicates.push((it) => it.draft);
+    else
+      throw new Error(`invalid parameter passed to filter '${filter.type}'`);
+  }
+  return (it) => predicates.every((predicate) => predicate(it));
 }
 async function findRelease(octokit, repo, filter = {}) {
   const predicate = buildPredicate(filter);
@@ -22078,7 +22179,14 @@ async function findRelease(octokit, repo, filter = {}) {
 }
 
 // src/main.ts
-var myToken = getInput("myToken");
-var octokit = getOctokit(myToken);
+console.log(undefined);
+var token2 = getInput("token");
+var octokit = getOctokit(token2);
 var { repo } = context2;
-await findRelease(octokit, repo);
+var filter = {
+  branch: getInput("branch"),
+  type: getInput("type")
+};
+var match = await findRelease(octokit, repo, filter);
+setOutput("matched", !!match);
+setOutput("match", match);

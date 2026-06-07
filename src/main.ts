@@ -1,18 +1,20 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import findRelease from "./finder";
+import findRelease, { type Filter } from "./finder";
 
-// This should be a token with access to your repository scoped in as a secret.
-// The YML workflow will need to set myToken with the GitHub Secret Token
-// myToken: ${{ secrets.GITHUB_TOKEN }}
-// https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
-const myToken = core.getInput("myToken");
+console.log(github.token);
+const token = core.getInput("token");
 
-const octokit = github.getOctokit(myToken);
+const octokit = github.getOctokit(token);
 
 const { repo } = github.context;
 
-// You can also pass in additional options as a second parameter to getOctokit
-// const octokit = github.getOctokit(myToken, {userAgent: "MyActionVersion1"});
+const filter: Filter = {
+  branch: core.getInput("branch"),
+  type: core.getInput("type") as Filter["type"],
+};
 
-await findRelease(octokit, repo);
+const match = await findRelease(octokit, repo, filter);
+
+core.setOutput("matched", !!match);
+core.setOutput("match", match);

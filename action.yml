@@ -8,9 +8,8 @@ branding:
 inputs:
   token:
     description: the github token
-    required: true
   type:
-    description: draft/released/any
+    description: draft/released
   branch:
     description: the git branch
 

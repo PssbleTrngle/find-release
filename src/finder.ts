@@ -4,15 +4,22 @@ import type { components } from "@octokit/openapi-types/types";
 type Octokit = InstanceType<typeof GitHub>;
 type Release = components["schemas"]["release"];
 type RepoSeach = { repo: string; owner: string };
-type Filter = { branch?: string; type?: "released" | "draft" };
+export type Filter = { branch?: string; type?: "released" | "draft" };
 
-function buildPredicate(filter: Filter) {
-  return (it: Release) => {
-    if (filter.branch && it.target_commitish !== filter.branch) return false;
-    if (filter.type === "released" && it.draft) return false;
-    if (filter.type === "draft" && !it.draft) return false;
-    return true;
-  };
+type Predicate = (release: Release) => boolean;
+
+function buildPredicate(filter: Filter): Predicate {
+  const predicates: Predicate[] = [];
+  if (filter.branch)
+    predicates.push((it) => it.target_commitish !== filter.branch);
+
+  if (filter.type) {
+    if (filter.type === "released") predicates.push((it) => !it.draft);
+    else if (filter.type === "draft") predicates.push((it) => it.draft);
+    else throw new Error(`invalid parameter passed to filter '${filter.type}'`);
+  }
+
+  return (it) => predicates.every((predicate) => predicate(it));
 }
 
 export default async function findRelease(
