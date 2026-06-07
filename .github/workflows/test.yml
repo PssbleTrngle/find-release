@@ -29,4 +29,4 @@ jobs:
          - name: Run tests
            run: bun test
            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
