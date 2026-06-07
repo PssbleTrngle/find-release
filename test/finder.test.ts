@@ -16,7 +16,7 @@ it("finds latest for branch", async () => {
   const octokit = getOctokit(process.env.GITHUB_TOKEN!!);
 
   const actual = await findRelease(octokit, repo, {
-    branch: "main/common/1.21.x",
+    branch: "main",
   });
 
   expect(actual).not.toBeNull();
