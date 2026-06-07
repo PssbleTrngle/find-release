@@ -1,7 +1,7 @@
 # PssbleTrngle/find-release
 
 ```yaml
-- uses: PssbleTrngle/find-release
+- uses: PssbleTrngle/find-release@v1
   id: action
   with:
     type: draft
