@@ -32,8 +32,6 @@ jobs:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
    integration:
-      permissions:
-         contents: write
       runs-on: ubuntu-latest
       steps:
          - uses: actions/checkout@v6

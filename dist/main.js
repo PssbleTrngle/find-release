@@ -22179,9 +22179,10 @@ async function findRelease(octokit, repo, filter = {}) {
 }
 
 // src/main.ts
-console.log(undefined);
-var token2 = getInput("token");
-var octokit = getOctokit(token2);
+console.log("context", context2);
+console.log("token", context2.token);
+var token = getInput("token");
+var octokit = getOctokit(token);
 var { repo } = context2;
 var filter = {
   branch: getInput("branch"),
