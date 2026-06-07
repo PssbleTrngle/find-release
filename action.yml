@@ -1,0 +1,25 @@
+name: Find Release
+description: finds the latest github release for the specified query
+
+branding:
+  icon: search
+  color: orange
+
+inputs:
+  token:
+    description: the github token
+    required: true
+  type:
+    description: draft/released/any
+  branch:
+    description: the git branch
+
+outputs:
+  match:
+    description: the matched release
+  matched:
+    description: whether or not a release was found
+
+runs:
+  using: node24
+  main: dist/main.js
