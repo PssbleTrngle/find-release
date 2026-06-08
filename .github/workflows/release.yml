@@ -1,0 +1,30 @@
+name: Update Main Version
+
+on:
+   release:
+      types: [published]
+
+jobs:
+   tag:
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v6
+           with:
+              fetch-depth: 0
+         - name: Git config
+           run: |
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+         - name: Get major version
+           uses: actions/github-script@v9
+           id: script
+           with:
+              script: return context.release.tag_name.split(".")[0]
+              result-encoding: string
+
+         - name: Tag new target
+           run: git tag -f ${{ steps.script.outputs.result }} ${{ github.event.release.tag_name }}
+
+         - name: Push new tag
+           run: git push origin ${{ steps.script.outputs.result }} --force
