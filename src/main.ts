@@ -6,14 +6,24 @@ const token = core.getInput("token", { required: true });
 
 const octokit = github.getOctokit(token);
 
-const { repo } = github.context;
+const { repo, ref } = github.context;
+const branchPrefix = "refs/heads/";
 
-const filter: Filter = {
-  branch: core.getInput("branch"),
-  type: core.getInput("type") as Filter["type"],
-};
+function parseBranchInput() {
+  const input = core.getInput("branch");
+  if (!input) {
+    if (ref.startsWith(branchPrefix)) return ref.substring(branchPrefix.length);
+    throw new Error("cannot decode branch from ref, please pass manually");
+  }
 
-const match = await findRelease(octokit, repo, filter);
+  if (input === "*") return undefined;
+  return input;
+}
+
+const type = core.getInput("type") as Filter["type"];
+const branch = parseBranchInput();
+
+const match = await findRelease(octokit, repo, { type, branch });
 
 core.setOutput("matched", !!match);
 core.setOutput("match", match);

@@ -12,11 +12,11 @@
 
 ## Inputs
 
-| key    | description                                           | Required |
-| ------ | ----------------------------------------------------- | -------- |
-| token  | the github token to be used                           | yes      |
-| branch | the head branch this release has been created against | no       |
-| type   | either `draft` or `released`                          | no       |
+| key    | description                                        | Default                  | Required |
+| ------ | -------------------------------------------------- | ------------------------ | -------- |
+| token  | the github token to be used                        | `null`                   | yes      |
+| branch | the head branch of the release, pass `*` to ignore | parsed from `github.ref` | no       |
+| type   | either `draft` or `released`                       | `null`                   | no       |
 
 ## Outputs
 

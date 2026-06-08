@@ -22181,12 +22181,22 @@ async function findRelease(octokit, repo, filter = {}) {
 // src/main.ts
 var token = getInput("token", { required: true });
 var octokit = getOctokit(token);
-var { repo } = context2;
-var filter = {
-  branch: getInput("branch"),
-  type: getInput("type")
-};
-var match = await findRelease(octokit, repo, filter);
+var { repo, ref } = context2;
+var branchPrefix = "refs/heads/";
+function parseBranchInput() {
+  const input = getInput("branch");
+  if (!input) {
+    if (ref.startsWith(branchPrefix))
+      return ref.substring(branchPrefix.length);
+    throw new Error("cannot decode branch from ref, please pass manually");
+  }
+  if (input === "*")
+    return;
+  return input;
+}
+var type = getInput("type");
+var branch = parseBranchInput();
+var match = await findRelease(octokit, repo, { type, branch });
 setOutput("matched", !!match);
 setOutput("match", match);
 setOutput("tag", match?.tag_name);
