@@ -33,6 +33,10 @@ jobs:
 
    integration:
       runs-on: ubuntu-latest
+      strategy:
+         matrix:
+            type: [draft, released]
+            branch: ["", "*", "main", "unknown"]
       steps:
          - uses: actions/checkout@v6
 
@@ -40,7 +44,8 @@ jobs:
            id: action
            uses: ./
            with:
-              type: draft
+              type: ${{ matrix.type }}
+              branch: ${{ matrix.branch }}
               token: ${{ secrets.GITHUB_TOKEN }}
 
          - run: echo ${{ steps.action.outputs.matched }}
