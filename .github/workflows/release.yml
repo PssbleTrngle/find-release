@@ -20,7 +20,7 @@ jobs:
            uses: actions/github-script@v9
            id: script
            with:
-              script: return ${{ github.event.release.tag_name }}.split(".")[0]
+              script: return "${{ github.event.release.tag_name }}".split(".")[0]
               result-encoding: string
 
          - name: Tag new target
