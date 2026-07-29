@@ -13,6 +13,7 @@ function parseBranchInput() {
   const input = core.getInput("branch");
   if (!input) {
     if (ref.startsWith(branchPrefix)) return ref.substring(branchPrefix.length);
+    core.error(`not a branch ref: '${ref}'`);
     throw new Error("cannot decode branch from ref, please pass manually");
   }
 
@@ -24,6 +25,12 @@ const type = core.getInput("type") as Filter["type"];
 const branch = parseBranchInput();
 
 const match = await findRelease(octokit, repo, { type, branch });
+
+if (match) {
+  core.info(`found release: ${match.tag_name}`);
+} else {
+  core.info("could not find release");
+}
 
 core.setOutput("matched", !!match);
 core.setOutput("match", match);
