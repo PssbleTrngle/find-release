@@ -25,6 +25,12 @@ const branch = parseBranchInput();
 
 const match = await findRelease(octokit, repo, { type, branch });
 
+if (match) {
+  core.info(`found release: ${match.tag_name}`);
+} else {
+  core.info("could not find release");
+}
+
 core.setOutput("matched", !!match);
 core.setOutput("match", match);
 core.setOutput("tag", match?.tag_name);

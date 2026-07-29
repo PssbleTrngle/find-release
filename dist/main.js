@@ -17697,12 +17697,12 @@ var require_lib = __commonJS((exports) => {
           throw new Error("Client has already been disposed.");
         }
         const parsedUrl = new URL(requestUrl);
-        let info = this._prepareRequest(verb, parsedUrl, headers);
+        let info2 = this._prepareRequest(verb, parsedUrl, headers);
         const maxTries = this._allowRetries && RetryableHttpVerbs.includes(verb) ? this._maxRetries + 1 : 1;
         let numTries = 0;
         let response;
         do {
-          response = yield this.requestRaw(info, data);
+          response = yield this.requestRaw(info2, data);
           if (response && response.message && response.message.statusCode === HttpCodes2.Unauthorized) {
             let authenticationHandler;
             for (const handler of this.handlers) {
@@ -17712,7 +17712,7 @@ var require_lib = __commonJS((exports) => {
               }
             }
             if (authenticationHandler) {
-              return authenticationHandler.handleAuthentication(this, info, data);
+              return authenticationHandler.handleAuthentication(this, info2, data);
             } else {
               return response;
             }
@@ -17735,8 +17735,8 @@ var require_lib = __commonJS((exports) => {
                 }
               }
             }
-            info = this._prepareRequest(verb, parsedRedirectUrl, headers);
-            response = yield this.requestRaw(info, data);
+            info2 = this._prepareRequest(verb, parsedRedirectUrl, headers);
+            response = yield this.requestRaw(info2, data);
             redirectsRemaining--;
           }
           if (!response.message.statusCode || !HttpResponseRetryCodes2.includes(response.message.statusCode)) {
@@ -17757,7 +17757,7 @@ var require_lib = __commonJS((exports) => {
       }
       this._disposed = true;
     }
-    requestRaw(info, data) {
+    requestRaw(info2, data) {
       return __awaiter2(this, undefined, undefined, function* () {
         return new Promise((resolve, reject) => {
           function callbackForResult(err, res) {
@@ -17769,16 +17769,16 @@ var require_lib = __commonJS((exports) => {
               resolve(res);
             }
           }
-          this.requestRawWithCallback(info, data, callbackForResult);
+          this.requestRawWithCallback(info2, data, callbackForResult);
         });
       });
     }
-    requestRawWithCallback(info, data, onResult) {
+    requestRawWithCallback(info2, data, onResult) {
       if (typeof data === "string") {
-        if (!info.options.headers) {
-          info.options.headers = {};
+        if (!info2.options.headers) {
+          info2.options.headers = {};
         }
-        info.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
+        info2.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
       }
       let callbackCalled = false;
       function handleResult(err, res) {
@@ -17787,7 +17787,7 @@ var require_lib = __commonJS((exports) => {
           onResult(err, res);
         }
       }
-      const req = info.httpModule.request(info.options, (msg) => {
+      const req = info2.httpModule.request(info2.options, (msg) => {
         const res = new HttpClientResponse(msg);
         handleResult(undefined, res);
       });
@@ -17799,7 +17799,7 @@ var require_lib = __commonJS((exports) => {
         if (socket) {
           socket.end();
         }
-        handleResult(new Error(`Request timeout: ${info.options.path}`));
+        handleResult(new Error(`Request timeout: ${info2.options.path}`));
       });
       req.on("error", function(err) {
         handleResult(err);
@@ -17830,27 +17830,27 @@ var require_lib = __commonJS((exports) => {
       return this._getProxyAgentDispatcher(parsedUrl, proxyUrl);
     }
     _prepareRequest(method, requestUrl, headers) {
-      const info = {};
-      info.parsedUrl = requestUrl;
-      const usingSsl = info.parsedUrl.protocol === "https:";
-      info.httpModule = usingSsl ? https : http;
+      const info2 = {};
+      info2.parsedUrl = requestUrl;
+      const usingSsl = info2.parsedUrl.protocol === "https:";
+      info2.httpModule = usingSsl ? https : http;
       const defaultPort = usingSsl ? 443 : 80;
-      info.options = {};
-      info.options.host = info.parsedUrl.hostname;
-      info.options.port = info.parsedUrl.port ? parseInt(info.parsedUrl.port) : defaultPort;
-      info.options.path = (info.parsedUrl.pathname || "") + (info.parsedUrl.search || "");
-      info.options.method = method;
-      info.options.headers = this._mergeHeaders(headers);
+      info2.options = {};
+      info2.options.host = info2.parsedUrl.hostname;
+      info2.options.port = info2.parsedUrl.port ? parseInt(info2.parsedUrl.port) : defaultPort;
+      info2.options.path = (info2.parsedUrl.pathname || "") + (info2.parsedUrl.search || "");
+      info2.options.method = method;
+      info2.options.headers = this._mergeHeaders(headers);
       if (this.userAgent != null) {
-        info.options.headers["user-agent"] = this.userAgent;
+        info2.options.headers["user-agent"] = this.userAgent;
       }
-      info.options.agent = this._getAgent(info.parsedUrl);
+      info2.options.agent = this._getAgent(info2.parsedUrl);
       if (this.handlers) {
         for (const handler of this.handlers) {
-          handler.prepareRequest(info.options);
+          handler.prepareRequest(info2.options);
         }
       }
-      return info;
+      return info2;
     }
     _mergeHeaders(headers) {
       if (this.requestOptions && this.requestOptions.headers) {
@@ -18515,6 +18515,9 @@ function setOutput(name, value) {
   }
   process.stdout.write(os4.EOL);
   issueCommand("set-output", { name }, toCommandValue(value));
+}
+function info(message) {
+  process.stdout.write(message + os4.EOL);
 }
 
 // node_modules/@actions/github/lib/context.js
@@ -22197,6 +22200,11 @@ function parseBranchInput() {
 var type = getInput("type");
 var branch = parseBranchInput();
 var match = await findRelease(octokit, repo, { type, branch });
+if (match) {
+  info(`found release: ${match.tag_name}`);
+} else {
+  info("could not find release");
+}
 setOutput("matched", !!match);
 setOutput("match", match);
 setOutput("tag", match?.tag_name);
