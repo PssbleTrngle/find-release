@@ -13078,7 +13078,7 @@ var require_fetch = __commonJS((exports, module) => {
       request.cache = "no-store";
     }
     const newConnection = forceNewConnection ? "yes" : "no";
-    if (request.mode === "websocket") {} else {}
+    if (request.mode === "websocket") {}
     let requestBody = null;
     if (request.body == null && fetchParams.processRequestEndOfBody) {
       queueMicrotask(() => fetchParams.processRequestEndOfBody());
